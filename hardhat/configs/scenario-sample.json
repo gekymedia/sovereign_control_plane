@@ -1,0 +1,10 @@
+{
+  "contractAddress": "0xYourDeployedContract",
+  "primaryWallet": "0xYourPrimaryWallet",
+  "fallbackWallet": "0xYourFallbackWallet",
+  "overlayTier": 2,
+  "expectedRate": 1500,
+  "maxOracleDelay": 300,
+  "assets": ["USDC", "DAI"],
+  "dryRunFirst": true
+}
