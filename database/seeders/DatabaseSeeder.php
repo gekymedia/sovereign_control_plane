@@ -48,5 +48,24 @@ class DatabaseSeeder extends Seeder
             // Assign role via Spatie permission
             $user->assignRole($userData['role']);
         }
+
+        // Create an initial governance setting if none exists.  This
+        // prevents the dashboard from showing blank values on a fresh
+        // installation.  The latest record will always be considered
+        // active; users can update via the UI.
+        if (\App\Models\GovernanceSetting::count() === 0) {
+            \App\Models\GovernanceSetting::create([
+                'overlay_tier'     => 'none',
+                'expected_rate'    => 0,
+                'max_oracle_delay' => 300,
+                'use_curve'        => false,
+                'uni_fee_tier'     => 3000,
+                'curve_index_in'   => 1,
+                'curve_index_out'  => 0,
+                'loan_asset'       => null,
+                'profit_wallet'    => null,
+                'fallback_wallet'  => null,
+            ]);
+        }
     }
 }

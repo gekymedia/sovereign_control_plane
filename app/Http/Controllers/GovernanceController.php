@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process;
+use App\Models\GovernanceSetting;
 
 /**
  * Controller for the governance control plane.
@@ -22,14 +23,20 @@ class GovernanceController extends Controller
      */
     public function index()
     {
-        $settings = [];
-        if (Storage::exists('governance.json')) {
-            $settings = json_decode(Storage::get('governance.json'), true) ?? [];
+        // Fetch the latest governance setting or create a default instance
+        $settings = GovernanceSetting::latest()->first();
+        if (!$settings) {
+            $settings = new GovernanceSetting([
+                'overlay_tier' => 'none',
+                'expected_rate' => 0,
+                'max_oracle_delay' => 300,
+                'use_curve' => false,
+                'uni_fee_tier' => 3000,
+                'curve_index_in' => 1,
+                'curve_index_out' => 0,
+            ]);
         }
-
-        return view('governance.index', [
-            'settings' => $settings,
-        ]);
+        return view('governance.index', ['settings' => $settings]);
     }
 
     /**
@@ -50,18 +57,25 @@ class GovernanceController extends Controller
             'loan_asset' => 'required|string',
         ]);
 
-        // Persist settings to JSON file
-        Storage::put('governance.json', json_encode($data, JSON_PRETTY_PRINT));
+        // Create a new governance setting record (immutable history)
+        $setting = GovernanceSetting::create($data);
 
-        // In a real system this is where contract calls would be executed. We
-        // provide a placeholder using Symfony\Process to call a Node script
-        // (e.g. hardhat tasks) asynchronously. The script should read
-        // governance.json and apply settings via the deployed contract.
-        //
-        // Example:
-        // $process = new Process(['node', 'hardhat/scripts/applyGovernance.js']);
-        // $process->start();
+        // Dispatch job to apply settings on-chain asynchronously
+        // This prevents blocking the web request while blockchain transactions are processed
+        try {
+            \App\Jobs\ApplyGovernanceJob::dispatch($setting->id);
+            \Illuminate\Support\Facades\Log::info('Governance settings updated and queued for on-chain application', [
+                'setting_id' => $setting->id,
+                'user_id' => auth()->id(),
+            ]);
+        } catch (\Exception $e) {
+            // Log error but don't fail the request - settings are saved in DB
+            \Illuminate\Support\Facades\Log::error('Failed to queue governance application job', [
+                'error' => $e->getMessage(),
+                'setting_id' => $setting->id,
+            ]);
+        }
 
-        return redirect()->back()->with('status', 'Governance settings updated.');
+        return redirect()->back()->with('status', 'Governance settings updated. Applying to blockchain in background...');
     }
 }

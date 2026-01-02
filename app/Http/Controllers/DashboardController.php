@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\GovernanceSetting;
 
 /**
  * Handles the display of the main governance dashboard.
@@ -26,10 +27,18 @@ class DashboardController extends Controller
             $report = json_decode(Storage::get('scenarioReport.json'), true) ?? [];
         }
 
-        // Load governance settings
-        $settings = [];
-        if (Storage::exists('governance.json')) {
-            $settings = json_decode(Storage::get('governance.json'), true) ?? [];
+        // Load governance settings from the database.  The dashboard view
+        // expects an array for convenient property access, so convert
+        // the Eloquent model into an array if present.  When no
+        // settings exist yet, fall back to any legacy JSON file.
+        $settings = GovernanceSetting::latest()->first();
+        if ($settings instanceof GovernanceSetting) {
+            $settings = $settings->toArray();
+        }
+
+        // Fallback to JSON file if DB has no record
+        if (!$settings && Storage::exists('governance.json')) {
+            $settings = json_decode(Storage::get('governance.json'), true);
         }
 
         return view('dashboard.index', [

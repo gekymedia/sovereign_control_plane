@@ -69,7 +69,7 @@
                     <div class="relative">
                         <select name="overlay_tier" id="overlay_tier" 
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none">
-                            @php $current = $settings['overlay_tier'] ?? 'none'; @endphp
+                            @php $current = $settings->overlay_tier ?? 'none'; @endphp
                             <option value="none" @selected($current=='none')>None</option>
                             <option value="ChaoticTier13" @selected($current=='ChaoticTier13')>ChaoticTier13</option>
                             <option value="SovereignTierX" @selected($current=='SovereignTierX')>SovereignTierX</option>
@@ -94,7 +94,7 @@
                     </label>
                     <div class="relative">
                         <input type="number" step="0.01" name="expected_rate" id="expected_rate" 
-                               value="{{ $settings['expected_rate'] ?? '' }}" 
+                               value="{{ old('expected_rate', $settings->expected_rate) }}" 
                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                placeholder="Enter expected rate...">
                         <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -109,14 +109,14 @@
                     <label for="max_oracle_delay" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         <div class="flex items-center justify-between">
                             <span>Max Oracle Delay</span>
-                            @if(($settings['max_oracle_delay'] ?? 0) > 60)
+                            @if(($settings->max_oracle_delay ?? 0) > 60)
                             <span class="text-xs text-red-600 dark:text-red-400 font-medium">Warning: High Delay</span>
                             @endif
                         </div>
                     </label>
                     <div class="relative">
                         <input type="number" name="max_oracle_delay" id="max_oracle_delay" 
-                               value="{{ $settings['max_oracle_delay'] ?? '' }}" 
+                               value="{{ old('max_oracle_delay', $settings->max_oracle_delay) }}" 
                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                placeholder="Seconds...">
                         <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -151,7 +151,7 @@
                     </label>
                     <div class="relative">
                         <input type="number" name="uni_fee_tier" id="uni_fee_tier" 
-                               value="{{ $settings['uni_fee_tier'] ?? '3000' }}" 
+                               value="{{ old('uni_fee_tier', $settings->uni_fee_tier ?? '3000') }}" 
                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                placeholder="Basis points...">
                         <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -167,7 +167,7 @@
                         <label class="flex items-center space-x-3 cursor-pointer">
                             <div class="relative">
                                 <input type="checkbox" name="use_curve" id="use_curve" value="1" 
-                                       class="sr-only peer" @checked(!empty($settings['use_curve']))>
+                                       class="sr-only peer" @checked($settings->use_curve)>
                                 <div class="w-12 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-blue-600"></div>
                             </div>
                             <div>
@@ -184,7 +184,7 @@
                                 Curve Index In
                             </label>
                             <input type="number" name="curve_index_in" id="curve_index_in" 
-                                   value="{{ $settings['curve_index_in'] ?? '1' }}" 
+                                   value="{{ old('curve_index_in', $settings->curve_index_in ?? '1') }}" 
                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                    placeholder="Input index...">
                         </div>
@@ -195,7 +195,7 @@
                                 Curve Index Out
                             </label>
                             <input type="number" name="curve_index_out" id="curve_index_out" 
-                                   value="{{ $settings['curve_index_out'] ?? '0' }}" 
+                                   value="{{ old('curve_index_out', $settings->curve_index_out ?? '0') }}" 
                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                    placeholder="Output index...">
                         </div>
@@ -228,7 +228,7 @@
                     </label>
                     <div class="relative">
                         <input type="text" name="loan_asset" id="loan_asset" 
-                               value="{{ $settings['loan_asset'] ?? '' }}" 
+                               value="{{ old('loan_asset', $settings->loan_asset) }}" 
                                class="w-full px-4 py-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                placeholder="0x...">
                         <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -251,7 +251,7 @@
                     </label>
                     <div class="relative">
                         <input type="text" name="profit_wallet" id="profit_wallet" 
-                               value="{{ $settings['profit_wallet'] ?? '' }}" 
+                               value="{{ old('profit_wallet', $settings->profit_wallet) }}" 
                                class="w-full px-4 py-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                placeholder="0x...">
                         <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -274,7 +274,7 @@
                     </label>
                     <div class="relative">
                         <input type="text" name="fallback_wallet" id="fallback_wallet" 
-                               value="{{ $settings['fallback_wallet'] ?? '' }}" 
+                               value="{{ old('fallback_wallet', $settings->fallback_wallet) }}" 
                                class="w-full px-4 py-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                placeholder="0x...">
                         <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">

@@ -171,15 +171,15 @@
                     </div>
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Uploaded Scenarios</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $files->count() }} file(s) uploaded</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $scenarios->count() }} file(s) uploaded</p>
                     </div>
                 </div>
                 <span class="px-3 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
-                    {{ $files->count() }} files
+                    {{ $scenarios->count() }} files
                 </span>
             </div>
             
-            @if($files->isEmpty())
+            @if($scenarios->isEmpty())
                 <div class="text-center py-8">
                     <div class="p-4 rounded-full bg-gray-100 dark:bg-gray-800 inline-block mb-4">
                         <i class="fas fa-inbox text-gray-400 text-2xl"></i>
@@ -189,34 +189,25 @@
                 </div>
             @else
                 <div class="space-y-3">
-                    @foreach($files as $file)
+                    @foreach($scenarios as $scenario)
                         <div class="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-xl transition-colors">
                             <div class="flex items-center space-x-3">
                                 <div class="p-2 rounded-lg bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
                                     <i class="fas fa-file-code text-gray-600 dark:text-gray-400"></i>
                                 </div>
                                 <div>
-                                    <p class="font-medium text-gray-900 dark:text-white">{{ $file }}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Uploaded {{ now()->subDays(rand(0, 7))->diffForHumans() }}</p>
+                                    <p class="font-medium text-gray-900 dark:text-white">{{ $scenario->file_name }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Uploaded {{ $scenario->created_at->diffForHumans() }}</p>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <button onclick="previewFile('{{ $file }}')" 
-                                        class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
-                                        title="Preview">
-                                    <i class="fas fa-eye text-gray-600 dark:text-gray-400"></i>
-                                </button>
-                                <button onclick="downloadFile('{{ $file }}')" 
-                                        class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
-                                        title="Download">
-                                    <i class="fas fa-download text-gray-600 dark:text-gray-400"></i>
-                                </button>
-                                <button onclick="deleteFile('{{ $file }}')" 
-                                        class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors" 
-                                        title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+                            <span class="text-xs px-3 py-1 rounded-full 
+                                @if($scenario->status === 'pending') bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300
+                                @elseif($scenario->status === 'running') bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300
+                                @elseif($scenario->status === 'completed') bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300
+                                @else bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300
+                                @endif">
+                                {{ ucfirst($scenario->status) }}
+                            </span>
                         </div>
                     @endforeach
                 </div>

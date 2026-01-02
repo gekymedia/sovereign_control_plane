@@ -121,16 +121,16 @@
             <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <p class="text-center text-sm text-gray-600 dark:text-gray-400 mb-4">Or continue with</p>
                 <div class="grid grid-cols-2 gap-3">
-                    <button type="button" 
-                            class="flex items-center justify-center space-x-2 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                        <i class="fab fa-google text-red-500"></i>
+                    <a href="{{ route('auth.google') }}" 
+                       class="flex items-center justify-center space-x-2 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors hover:border-red-400 dark:hover:border-red-500 group">
+                        <i class="fab fa-google text-red-500 group-hover:text-red-600"></i>
                         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Google</span>
-                    </button>
-                    <button type="button" 
-                            class="flex items-center justify-center space-x-2 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                        <i class="fab fa-github text-gray-800 dark:text-white"></i>
+                    </a>
+                    <a href="{{ route('auth.github') }}" 
+                       class="flex items-center justify-center space-x-2 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors hover:border-gray-400 dark:hover:border-gray-500 group">
+                        <i class="fab fa-github text-gray-800 dark:text-white group-hover:text-gray-900 dark:group-hover:text-gray-100"></i>
                         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">GitHub</span>
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

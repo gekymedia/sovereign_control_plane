@@ -24,6 +24,10 @@ class User extends Authenticatable
         'password',
         // assignable user role; defaults handled by migration
         'role',
+        // OAuth fields
+        'provider',
+        'provider_id',
+        'avatar',
     ];
 
     /**

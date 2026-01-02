@@ -23,6 +23,12 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// OAuth routes
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+Route::get('/auth/github', [AuthController::class, 'redirectToGithub'])->name('auth.github');
+Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback'])->name('auth.github.callback');
+
 // Redirect root to dashboard
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -43,5 +49,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [ScenarioController::class, 'index'])->name('scenarios.index');
         Route::post('/upload', [ScenarioController::class, 'upload'])->name('scenarios.upload');
         Route::post('/run', [ScenarioController::class, 'run'])->name('scenarios.run');
+        Route::delete('/{scenario}', [ScenarioController::class, 'destroy'])->name('scenarios.destroy');
     });
 });
