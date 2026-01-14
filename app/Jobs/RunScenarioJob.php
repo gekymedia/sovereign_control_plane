@@ -23,6 +23,20 @@ class RunScenarioJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries = 2; // Lower tries for scenario execution as it's more expensive
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     *
+     * @var int
+     */
+    public $backoff = 120; // 2 minutes for scenario execution
+
+    /**
      * Execute the job.
      */
     public function handle(): void
@@ -62,8 +76,17 @@ class RunScenarioJob implements ShouldQueue
             $exitCode = 1;
             \Illuminate\Support\Facades\Log::error('RunScenarioJob: Exception during scenario execution', [
                 'message' => $e->getMessage(),
+                'attempt' => $this->attempts(),
+                'max_tries' => $this->tries,
                 'trace' => $e->getTraceAsString(),
             ]);
+
+            // Re-throw to trigger retry if attempts remain
+            if ($this->attempts() < $this->tries) {
+                // Reset scenarios back to pending for retry
+                Scenario::where('status', 'running')->update(['status' => 'pending']);
+                throw $e;
+            }
         }
 
         // Update scenario statuses
@@ -135,19 +158,24 @@ class RunScenarioJob implements ShouldQueue
     }
 
     /**
-     * Handle a job failure.
+     * Handle a job failure after all retry attempts are exhausted.
      *
      * @param \Throwable $exception
      * @return void
      */
     public function failed(\Throwable $exception): void
     {
-        \Illuminate\Support\Facades\Log::error('RunScenarioJob: Job failed permanently', [
+        \Illuminate\Support\Facades\Log::error('RunScenarioJob: Job failed permanently after all retries', [
             'message' => $exception->getMessage(),
+            'attempts' => $this->attempts(),
+            'max_tries' => $this->tries,
             'trace' => $exception->getTraceAsString(),
         ]);
 
         // Mark running scenarios as failed
         Scenario::where('status', 'running')->update(['status' => 'failed']);
+        
+        // Also mark any pending scenarios that might have been reset
+        Scenario::where('status', 'pending')->update(['status' => 'failed']);
     }
 }

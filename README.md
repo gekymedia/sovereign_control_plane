@@ -9,9 +9,22 @@ This repository contains a customised Laravel application used as a governance c
 - A **Scenario Runner** allowing oracle users to upload JSON scenario files, execute them against a deployed flash loan executor and visualise the results as charts.
 - A **Dashboard** presenting a high‑level overview of governance settings, scenario outcomes and generated metrics.
 
-To get started, run `composer install` followed by `npm install && npm run build`. Configure your environment variables in `.env`, run database migrations with `php artisan migrate --seed`, and create the storage symlink with `php artisan storage:link` to serve dashboard charts.
+To get started, run `composer install` followed by `npm install && npm run build`. 
+
+**🚀 Quick Start: Getting Your Environment Keys**
+- 📋 See **[ENV_KEYS_GUIDE.md](./ENV_KEYS_GUIDE.md)** for direct links to get all required `.env` keys (blockchain, OAuth, database, etc.)
+
+Configure your environment variables in `.env` (copy from `.env.example`), run database migrations with `php artisan migrate --seed`, and create the storage symlink with `php artisan storage:link` to serve dashboard charts.
 
 The `hardhat` directory contains a standalone Hardhat project for deploying and interacting with the `SovereignFlashLoanExecutor` contract, as well as scripts for running scenarios and generating dashboard charts.
+
+## 📚 Documentation
+
+- **[ENV_KEYS_GUIDE.md](./ENV_KEYS_GUIDE.md)** - Quick reference with links to get all environment keys
+- **[SETUP_GUIDE.md](./SETUP_GUIDE.md)** - Complete setup instructions
+- **[BLOCKCHAIN_CONFIGURATION_GUIDE.md](./BLOCKCHAIN_CONFIGURATION_GUIDE.md)** - Blockchain setup details
+- **[OAUTH_SETUP_GUIDE.md](./OAUTH_SETUP_GUIDE.md)** - OAuth authentication setup
+- **[PROJECT_ANALYSIS.md](./PROJECT_ANALYSIS.md)** - Comprehensive project analysis
 
 <p align="center">
 <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>

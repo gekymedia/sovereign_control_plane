@@ -18,16 +18,16 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GovernanceController;
 use App\Http\Controllers\ScenarioController;
 
-// Authentication routes
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+// Authentication routes with rate limiting
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,15'); // 5 attempts per 15 minutes
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// OAuth routes
-Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
-Route::get('/auth/github', [AuthController::class, 'redirectToGithub'])->name('auth.github');
-Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback'])->name('auth.github.callback');
+// OAuth routes with rate limiting
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google')->middleware('throttle:10,1');
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback')->middleware('throttle:10,1');
+Route::get('/auth/github', [AuthController::class, 'redirectToGithub'])->name('auth.github')->middleware('throttle:10,1');
+Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback'])->name('auth.github.callback')->middleware('throttle:10,1');
 
 // Redirect root to dashboard
 Route::get('/', function () {

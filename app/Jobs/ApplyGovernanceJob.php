@@ -33,6 +33,20 @@ class ApplyGovernanceJob implements ShouldQueue
     public $governanceSettingId;
 
     /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries = 3;
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     *
+     * @var int
+     */
+    public $backoff = 60;
+
+    /**
      * Create a new job instance.
      *
      * @param int|null $governanceSettingId
@@ -118,13 +132,17 @@ class ApplyGovernanceJob implements ShouldQueue
                 $transaction->update([
                     'status' => GovernanceTransaction::STATUS_SUCCESS,
                     'applied_by' => $statusData['applied_by'] ?? null,
-                    // Note: transaction_hash and block_number would need to be extracted
-                    // from the Node.js script output or by querying the blockchain
+                    'transaction_hash' => $statusData['transaction_hash'] ?? null,
+                    'block_number' => $statusData['block_number'] ?? null,
+                    'gas_used' => isset($statusData['gas_used']) ? (int) $statusData['gas_used'] : null,
                 ]);
 
                 Log::info('ApplyGovernanceJob: Successfully applied governance settings', [
                     'setting_id' => $setting->id,
                     'transaction_id' => $transaction->id,
+                    'transaction_hash' => $statusData['transaction_hash'] ?? null,
+                    'block_number' => $statusData['block_number'] ?? null,
+                    'total_transactions' => count($statusData['transactions'] ?? []),
                 ]);
             } else {
                 $errorMessage = $statusData['error'] ?? $process->getErrorOutput() ?? 'Unknown error';
@@ -144,24 +162,60 @@ class ApplyGovernanceJob implements ShouldQueue
             }
 
         } catch (\Throwable $e) {
+            // Update transaction status if it was created
+            if (isset($transaction)) {
+                $transaction->update([
+                    'status' => GovernanceTransaction::STATUS_FAILED,
+                    'error_message' => $e->getMessage(),
+                ]);
+            }
+
             Log::error('ApplyGovernanceJob: Exception occurred', [
+                'setting_id' => $this->governanceSettingId,
                 'message' => $e->getMessage(),
+                'attempt' => $this->attempts(),
+                'max_tries' => $this->tries,
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw $e;
+
+            // Re-throw to trigger retry mechanism if attempts remain
+            if ($this->attempts() < $this->tries) {
+                throw $e;
+            }
         }
     }
 
     /**
-     * Handle a job failure.
+     * Handle a job failure after all retry attempts are exhausted.
      *
      * @param \Throwable $exception
      * @return void
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error('ApplyGovernanceJob: Job failed permanently', [
+        // Get the governance setting
+        $setting = $this->governanceSettingId 
+            ? GovernanceSetting::find($this->governanceSettingId)
+            : GovernanceSetting::latest()->first();
+
+        // Update or create failed transaction record
+        if ($setting) {
+            GovernanceTransaction::updateOrCreate(
+                [
+                    'governance_setting_id' => $setting->id,
+                    'status' => GovernanceTransaction::STATUS_FAILED,
+                ],
+                [
+                    'error_message' => 'Job failed after ' . $this->tries . ' attempts: ' . $exception->getMessage(),
+                ]
+            );
+        }
+
+        Log::error('ApplyGovernanceJob: Job failed permanently after all retries', [
+            'setting_id' => $this->governanceSettingId,
             'message' => $exception->getMessage(),
+            'attempts' => $this->attempts(),
+            'max_tries' => $this->tries,
             'trace' => $exception->getTraceAsString(),
         ]);
     }

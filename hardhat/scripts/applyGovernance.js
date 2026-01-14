@@ -46,6 +46,9 @@ async function main() {
   // Get the signer (should be oracle or admin)
   const [signer] = await ethers.getSigners();
   console.log('👤 Using account:', signer.address);
+  
+  // Track all transaction hashes and block numbers
+  const transactions = [];
 
   try {
     // Map overlay tier string to enum value
@@ -64,8 +67,15 @@ async function main() {
       try {
         const tx = await executor.setOverlayTier(overlayTierValue);
         console.log('  ⏳ Setting overlay tier...');
-        await tx.wait();
+        const receipt = await tx.wait();
+        transactions.push({
+          function: 'setOverlayTier',
+          hash: receipt.hash,
+          blockNumber: receipt.blockNumber,
+          gasUsed: receipt.gasUsed.toString()
+        });
         console.log('  ✅ Overlay tier set to:', settings.overlay_tier);
+        console.log('  📝 Transaction:', receipt.hash);
       } catch (e) {
         console.error('  ❌ Failed to set overlay tier:', e.message);
       }
@@ -77,8 +87,15 @@ async function main() {
         const expectedRate = ethers.parseUnits(settings.expected_rate.toString(), 8); // Chainlink uses 8 decimals
         const tx = await executor.setExpectedRate(expectedRate);
         console.log('  ⏳ Setting expected rate...');
-        await tx.wait();
+        const receipt = await tx.wait();
+        transactions.push({
+          function: 'setExpectedRate',
+          hash: receipt.hash,
+          blockNumber: receipt.blockNumber,
+          gasUsed: receipt.gasUsed.toString()
+        });
         console.log('  ✅ Expected rate set to:', settings.expected_rate);
+        console.log('  📝 Transaction:', receipt.hash);
       } catch (e) {
         console.error('  ❌ Failed to set expected rate:', e.message);
       }
@@ -88,8 +105,15 @@ async function main() {
       try {
         const tx = await executor.setMaxOracleDelay(settings.max_oracle_delay);
         console.log('  ⏳ Setting max oracle delay...');
-        await tx.wait();
+        const receipt = await tx.wait();
+        transactions.push({
+          function: 'setMaxOracleDelay',
+          hash: receipt.hash,
+          blockNumber: receipt.blockNumber,
+          gasUsed: receipt.gasUsed.toString()
+        });
         console.log('  ✅ Max oracle delay set to:', settings.max_oracle_delay, 'seconds');
+        console.log('  📝 Transaction:', receipt.hash);
       } catch (e) {
         console.error('  ❌ Failed to set max oracle delay:', e.message);
       }
@@ -102,8 +126,15 @@ async function main() {
       try {
         const tx = await executor.updateProfitWallet(settings.profit_wallet);
         console.log('  ⏳ Updating profit wallet...');
-        await tx.wait();
+        const receipt = await tx.wait();
+        transactions.push({
+          function: 'updateProfitWallet',
+          hash: receipt.hash,
+          blockNumber: receipt.blockNumber,
+          gasUsed: receipt.gasUsed.toString()
+        });
         console.log('  ✅ Profit wallet set to:', settings.profit_wallet);
+        console.log('  📝 Transaction:', receipt.hash);
       } catch (e) {
         console.error('  ❌ Failed to set profit wallet:', e.message);
       }
@@ -113,8 +144,15 @@ async function main() {
       try {
         const tx = await executor.setFallbackWallet(settings.fallback_wallet);
         console.log('  ⏳ Setting fallback wallet...');
-        await tx.wait();
+        const receipt = await tx.wait();
+        transactions.push({
+          function: 'setFallbackWallet',
+          hash: receipt.hash,
+          blockNumber: receipt.blockNumber,
+          gasUsed: receipt.gasUsed.toString()
+        });
         console.log('  ✅ Fallback wallet set to:', settings.fallback_wallet);
+        console.log('  📝 Transaction:', receipt.hash);
       } catch (e) {
         console.error('  ❌ Failed to set fallback wallet:', e.message);
       }
@@ -124,8 +162,15 @@ async function main() {
       try {
         const tx = await executor.setLoanAsset(settings.loan_asset);
         console.log('  ⏳ Setting loan asset...');
-        await tx.wait();
+        const receipt = await tx.wait();
+        transactions.push({
+          function: 'setLoanAsset',
+          hash: receipt.hash,
+          blockNumber: receipt.blockNumber,
+          gasUsed: receipt.gasUsed.toString()
+        });
         console.log('  ✅ Loan asset set to:', settings.loan_asset);
+        console.log('  📝 Transaction:', receipt.hash);
       } catch (e) {
         console.error('  ❌ Failed to set loan asset:', e.message);
       }
@@ -135,8 +180,15 @@ async function main() {
       try {
         const tx = await executor.setUniFeeTier(settings.uni_fee_tier);
         console.log('  ⏳ Setting Uniswap fee tier...');
-        await tx.wait();
+        const receipt = await tx.wait();
+        transactions.push({
+          function: 'setUniFeeTier',
+          hash: receipt.hash,
+          blockNumber: receipt.blockNumber,
+          gasUsed: receipt.gasUsed.toString()
+        });
         console.log('  ✅ Uniswap fee tier set to:', settings.uni_fee_tier);
+        console.log('  📝 Transaction:', receipt.hash);
       } catch (e) {
         console.error('  ❌ Failed to set Uniswap fee tier:', e.message);
       }
@@ -146,13 +198,27 @@ async function main() {
       try {
         const tx1 = await executor.setCurveIndices(settings.curve_index_in, settings.curve_index_out);
         console.log('  ⏳ Setting Curve indices...');
-        await tx1.wait();
+        const receipt1 = await tx1.wait();
+        transactions.push({
+          function: 'setCurveIndices',
+          hash: receipt1.hash,
+          blockNumber: receipt1.blockNumber,
+          gasUsed: receipt1.gasUsed.toString()
+        });
         console.log('  ✅ Curve indices set:', settings.curve_index_in, '->', settings.curve_index_out);
+        console.log('  📝 Transaction:', receipt1.hash);
 
         const tx2 = await executor.setUseCurveStabilization(settings.use_curve);
         console.log('  ⏳ Setting Curve stabilization...');
-        await tx2.wait();
+        const receipt2 = await tx2.wait();
+        transactions.push({
+          function: 'setUseCurveStabilization',
+          hash: receipt2.hash,
+          blockNumber: receipt2.blockNumber,
+          gasUsed: receipt2.gasUsed.toString()
+        });
         console.log('  ✅ Curve stabilization:', settings.use_curve ? 'enabled' : 'disabled');
+        console.log('  📝 Transaction:', receipt2.hash);
       } catch (e) {
         console.error('  ❌ Failed to set Curve settings:', e.message);
       }
@@ -160,13 +226,21 @@ async function main() {
 
     console.log('\n✅ Governance settings applied successfully!');
     
-    // Save transaction status
+    // Get the first transaction hash and block number (most recent)
+    const lastTransaction = transactions.length > 0 ? transactions[transactions.length - 1] : null;
+    const totalGasUsed = transactions.reduce((sum, tx) => sum + BigInt(tx.gasUsed || '0'), BigInt(0));
+    
+    // Save transaction status with all transaction details
     const statusPath = path.join(__dirname, '../../storage/app/governance-apply-status.json');
     fs.writeFileSync(statusPath, JSON.stringify({
       status: 'success',
       timestamp: new Date().toISOString(),
       applied_by: signer.address,
-      contract_address: contractAddress
+      contract_address: contractAddress,
+      transaction_hash: lastTransaction?.hash || null,
+      block_number: lastTransaction?.blockNumber || null,
+      gas_used: totalGasUsed.toString(),
+      transactions: transactions
     }, null, 2));
 
   } catch (error) {
