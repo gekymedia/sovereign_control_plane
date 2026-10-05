@@ -14,6 +14,12 @@ class GekySeeder extends Seeder
      */
     public function run(): void
     {
+        $password = env('GEKY_ADMIN_PASSWORD');
+        if (empty($password)) {
+            if ($this->command) $this->command->warn('GEKY_ADMIN_PASSWORD is not set; skipping Geky admin seeding.');
+            return;
+        }
+
         // Ensure admin role exists
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         
@@ -22,7 +28,7 @@ class GekySeeder extends Seeder
             [
                 'name' => 'Geky Admin',
                 'email' => 'admin@gekychat.com',
-                'password' => Hash::make('Gyabaa2000;'),
+                'password' => Hash::make($password),
                 'role' => 'admin',
                 'email_verified_at' => now(),
             ]
@@ -35,7 +41,6 @@ class GekySeeder extends Seeder
 
         $this->command->info('Geky admin user created/updated successfully!');
         $this->command->info('Email: admin@gekychat.com');
-        $this->command->info('Password: Gyabaa2000;');
         $this->command->info('Role: admin (Spatie Permission)');
     }
 }
